@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduManager Pro</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        
+        .fade-enter { animation: fadeEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes fadeEnter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .modal-enter { animation: modalEnter 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes modalEnter { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-[#F3F4F6] text-slate-800 min-h-screen flex flex-col">
+
+    <div class="fixed inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-100 via-slate-50 to-white opacity-60"></div>
+
+    <nav class="sticky top-0 z-40 glass-panel border-b border-slate-200/60">
+        <div class="max-w-[95%] mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="bg-indigo-600 p-2 rounded-xl shadow-lg shadow-indigo-200">
+                    <i data-lucide="graduation-cap" class="h-6 w-6 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight text-slate-900">EduManager</h1>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <button class="p-2 text-slate-400 hover:text-indigo-600 transition-colors">
+                    <i data-lucide="bell" class="h-6 w-6"></i>
+                </button>
+                <div class="h-10 w-10 rounded-full bg-indigo-100 border border-indigo-200 flex items-center justify-center text-indigo-700 font-bold text-sm">
+                    AD
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow container mx-auto px-6 py-8 max-w-[95%]">
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-5 hover:shadow-md transition-shadow">
+                <div class="p-4 bg-blue-50 text-blue-600 rounded-2xl">
+                    <i data-lucide="users" class="h-7 w-7"></i>
+                </div>
+                <div>
+                    <p class="text-slate-500 text-sm font-bold uppercase tracking-wider">Total Alunos</p>
+                    <h3 id="totalStudents" class="text-3xl font-bold text-slate-900">0</h3>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-5 hover:shadow-md transition-shadow">
+                <div class="p-4 bg-emerald-50 text-emerald-600 rounded-2xl">
+                    <i data-lucide="award" class="h-7 w-7"></i>
+                </div>
+                <div>
+                    <p class="text-slate-500 text-sm font-bold uppercase tracking-wider">Aprovados</p>
+                    <h3 id="totalApproved" class="text-3xl font-bold text-slate-900">0</h3>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-5 hover:shadow-md transition-shadow">
+                <div class="p-4 bg-rose-50 text-rose-600 rounded-2xl">
+                    <i data-lucide="alert-circle" class="h-7 w-7"></i>
+                </div>
+                <div>
+                    <p class="text-slate-500 text-sm font-bold uppercase tracking-wider">Reprovados</p>
+                    <h3 id="totalFailed" class="text-3xl font-bold text-slate-900">0</h3>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-5 hover:shadow-md transition-shadow">
+                <div class="p-4 bg-indigo-50 text-indigo-600 rounded-2xl">
+                    <i data-lucide="bar-chart-2" class="h-7 w-7"></i>
+                </div>
+                <div>
+                    <p class="text-slate-500 text-sm font-bold uppercase tracking-wider">Média Geral</p>
+                    <h3 id="classAverage" class="text-3xl font-bold text-slate-900">0.0</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+            
+            <div class="xl:col-span-3 relative xl:sticky xl:top-28 z-10">
+                <div class="bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-100 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+                        <h2 class="font-bold text-slate-800 flex items-center gap-2 text-lg">
+                            Novo Aluno
+                        </h2>
+                        <div class="bg-indigo-600 p-1.5 rounded-lg">
+                            <i data-lucide="plus" class="h-4 w-4 text-white"></i>
+                        </div>
+                    </div>
+                    
+                    <form id="addStudentForm" class="p-6 space-y-5">
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-slate-500 uppercase">Matrícula</label>
+                                <input type="number" id="add_matricula" required
+                                    class="w-full rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all text-sm py-3 px-3 outline-none font-medium text-slate-700"
+                                    placeholder="101">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-slate-500 uppercase">Turma</label>
+                                <input type="text" id="add_turma" required
+                                    class="w-full rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all text-sm py-3 px-3 outline-none font-medium text-slate-700"
+                                    placeholder="3º A">
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-500 uppercase">Nome do Aluno</label>
+                            <div class="relative">
+                                <i data-lucide="user" class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400"></i>
+                                <input type="text" id="add_nome" required
+                                    class="w-full rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all text-sm py-3 pl-10 outline-none font-medium text-slate-700"
+                                    placeholder="Nome completo">
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-3">
+                            <label class="text-xs font-bold text-slate-500 uppercase flex items-center gap-2">
+                                <i data-lucide="calculator" class="h-4 w-4"></i> Notas
+                            </label>
+                            <div class="grid grid-cols-3 gap-3">
+                                <input type="number" id="add_nota1" step="0.1" min="0" max="10" required
+                                    class="w-full text-center rounded-lg border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 py-2.5 text-sm font-semibold text-slate-700 placeholder-slate-300 bg-white"
+                                    placeholder="N1">
+                                <input type="number" id="add_nota2" step="0.1" min="0" max="10" required
+                                    class="w-full text-center rounded-lg border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 py-2.5 text-sm font-semibold text-slate-700 placeholder-slate-300 bg-white"
+                                    placeholder="N2">
+                                <input type="number" id="add_nota3" step="0.1" min="0" max="10" required
+                                    class="w-full text-center rounded-lg border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 py-2.5 text-sm font-semibold text-slate-700 placeholder-slate-300 bg-white"
+                                    placeholder="N3">
+                            </div>
+                        </div>
+
+                        <button type="submit"
+                            class="w-full bg-slate-900 text-white px-4 py-3.5 rounded-xl hover:bg-indigo-600 hover:shadow-lg hover:shadow-indigo-500/30 transition-all duration-300 flex items-center justify-center gap-2 font-bold text-sm tracking-wide">
+                            <i data-lucide="plus-circle" class="h-5 w-5"></i>
+                            Adicionar Registro
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="xl:col-span-9 space-y-6">
+                
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-indigo-50 p-2 rounded-lg">
+                            <i data-lucide="database" class="h-6 w-6 text-indigo-600"></i>
+                        </div>
+                        <h2 class="text-xl font-bold text-slate-800">Registros Acadêmicos</h2>
+                    </div>
+                    <div class="relative w-full sm:w-96 group">
+                        <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors"></i>
+                        <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="Pesquisar por aluno, ID ou turma..." 
+                            class="pl-12 w-full rounded-xl border-slate-200 bg-slate-50 focus:bg-white border focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 text-base py-3 transition-all outline-none">
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-100 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50/80 border-b border-slate-100 text-xs uppercase tracking-wider text-slate-500 font-bold">
+                                    <th class="px-8 py-6">Aluno</th>
+                                    <th class="px-6 py-6 text-center">Turma</th>
+                                    <th class="px-6 py-6 text-center">Desempenho</th>
+                                    <th class="px-6 py-6 text-center">Status</th>
+                                    <th class="px-8 py-6 text-right">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentsTableBody" class="divide-y divide-slate-100">
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div id="emptyState" class="hidden py-24 flex flex-col items-center justify-center text-center">
+                        <div class="bg-slate-50 p-6 rounded-full mb-6 animate-pulse">
+                            <i data-lucide="folder-open" class="h-12 w-12 text-slate-300"></i>
+                        </div>
+                        <h3 class="text-slate-900 font-bold text-xl">Nenhum registro encontrado</h3>
+                        <p class="text-slate-400 text-base mt-2 max-w-sm mx-auto">Comece adicionando alunos através do formulário lateral.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="editModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onclick="closeEditModal()"></div>
+        
+        <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+            <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl pointer-events-auto transform transition-all scale-95 opacity-0 modal-content">
+                
+                <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 rounded-t-3xl">
+                    <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                        <i data-lucide="pencil-line" class="text-indigo-600"></i>
+                        Editar Aluno
+                    </h3>
+                    <button onclick="closeEditModal()" class="text-slate-400 hover:text-rose-500 hover:bg-rose-50 p-2 rounded-full transition-colors">
+                        <i data-lucide="x" class="h-6 w-6"></i>
+                    </button>
+                </div>
+
+                <form id="editStudentForm" class="p-8 space-y-6">
+                    <input type="hidden" id="edit_original_id">
+                    
+                    <div class="grid grid-cols-2 gap-5">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-500 uppercase">Matrícula</label>
+                            <input type="text" id="edit_matricula" readonly
+                                class="w-full rounded-xl border-slate-200 bg-slate-100 text-slate-500 cursor-not-allowed text-base py-3 px-4 outline-none font-medium shadow-inner">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-500 uppercase">Turma</label>
+                            <input type="text" id="edit_turma" required
+                                class="w-full rounded-xl border-slate-200 bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all text-base py-3 px-4 outline-none font-medium text-slate-800">
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-slate-500 uppercase">Nome do Aluno</label>
+                        <input type="text" id="edit_nome" required
+                            class="w-full rounded-xl border-slate-200 bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all text-base py-3 px-4 outline-none font-medium text-slate-800">
+                    </div>
+
+                    <div class="bg-indigo-50/50 p-5 rounded-2xl border border-indigo-100 space-y-3">
+                        <label class="text-xs font-bold text-indigo-900/60 uppercase flex items-center gap-2">
+                            <i data-lucide="calculator" class="h-4 w-4"></i> Alterar Notas
+                        </label>
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="space-y-1 text-center">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase">Tri 1</span>
+                                <input type="number" id="edit_nota1" step="0.1" min="0" max="10" required
+                                    class="w-full text-center rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 py-3 text-lg font-bold text-slate-700 shadow-sm">
+                            </div>
+                            <div class="space-y-1 text-center">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase">Tri 2</span>
+                                <input type="number" id="edit_nota2" step="0.1" min="0" max="10" required
+                                    class="w-full text-center rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 py-3 text-lg font-bold text-slate-700 shadow-sm">
+                            </div>
+                            <div class="space-y-1 text-center">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase">Tri 3</span>
+                                <input type="number" id="edit_nota3" step="0.1" min="0" max="10" required
+                                    class="w-full text-center rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 py-3 text-lg font-bold text-slate-700 shadow-sm">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-2 flex gap-3">
+                        <button type="button" onclick="closeEditModal()"
+                            class="flex-1 px-4 py-3.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-sm transition-colors">
+                            Cancelar
+                        </button>
+                        <button type="submit"
+                            class="flex-[2] bg-indigo-600 text-white px-4 py-3.5 rounded-xl hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-500/30 transition-all font-bold text-sm flex items-center justify-center gap-2">
+                            <i data-lucide="save" class="h-5 w-5"></i>
+                            Salvar Alterações
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-10 right-10 translate-y-24 opacity-0 transition-all duration-500 z-[60]">
+        <div class="bg-white border border-slate-100 px-6 py-5 rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.2)] flex items-center gap-4 min-w-[340px]">
+            <div id="toastIcon" class="bg-emerald-100 p-3 rounded-full text-emerald-600">
+                <i data-lucide="check" class="h-6 w-6"></i>
+            </div>
+            <div>
+                <h4 id="toastTitle" class="text-base font-bold text-slate-800">Sucesso</h4>
+                <p id="toastMessage" class="text-sm text-slate-500 mt-0.5">Operação realizada.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/alunos';
+        
+        let students = [];
+
+
+        async function fetchStudents() {
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error('Falha na conexão');
+                students = await response.json();
+                renderTable();
+            } catch (error) {
+                console.warn("Backend offline ou erro:", error);
+                if(!students) students = [];
+                renderTable();
+            }
+        }
+
+        async function createStudent(e) {
+            e.preventDefault();
+            
+            const data = {
+                matricula: document.getElementById('add_matricula').value,
+                id: document.getElementById('add_matricula').value,
+                nome: document.getElementById('add_nome').value,
+                turma: document.getElementById('add_turma').value,
+                nota1: document.getElementById('add_nota1').value,
+                nota2: document.getElementById('add_nota2').value,
+                nota3: document.getElementById('add_nota3').value
+            };
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) throw new Error('Erro ao salvar');
+                
+                showToast('Aluno Adicionado', 'Registro salvo com sucesso.');
+                document.getElementById('addStudentForm').reset();
+                fetchStudents();
+            } catch (error) {
+                showToast('Erro', 'Falha ao salvar aluno.', true);
+            }
+        }
+
+        async function updateStudent(e) {
+            e.preventDefault();
+
+            const id = document.getElementById('edit_original_id').value;
+            const data = {
+                id: id,
+                matricula: id,
+                nome: document.getElementById('edit_nome').value,
+                turma: document.getElementById('edit_turma').value,
+                nota1: document.getElementById('edit_nota1').value,
+                nota2: document.getElementById('edit_nota2').value,
+                nota3: document.getElementById('edit_nota3').value
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) throw new Error('Erro ao atualizar');
+
+                showToast('Atualizado', 'Dados alterados com sucesso.');
+                closeEditModal();
+                fetchStudents();
+            } catch (error) {
+                showToast('Erro', 'Falha ao atualizar dados.', true);
+            }
+        }
+
+        async function deleteStudentApi(id) {
+            if(!confirm('Deseja realmente excluir este registro do banco?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+                if (!response.ok) throw new Error('Erro ao remover');
+                
+                showToast('Removido', 'Registro excluído.');
+                fetchStudents();
+            } catch (error) {
+                showToast('Erro', 'Falha ao excluir.', true);
+            }
+        }
+
+
+        document.getElementById('addStudentForm').addEventListener('submit', createStudent);
+        document.getElementById('editStudentForm').addEventListener('submit', updateStudent);
+
+        function openEditModal(id) {
+            const student = students.find(s => String(s.id) === String(id));
+            if (!student) return;
+
+            document.getElementById('edit_original_id').value = student.id;
+            document.getElementById('edit_matricula').value = student.id;
+            document.getElementById('edit_nome').value = student.nome;
+            document.getElementById('edit_turma').value = student.turma;
+            document.getElementById('edit_nota1').value = student.n1 || student.nota1 || 0;
+            document.getElementById('edit_nota2').value = student.n2 || student.nota2 || 0;
+            document.getElementById('edit_nota3').value = student.n3 || student.nota3 || 0;
+
+            const modal = document.getElementById('editModal');
+            const content = modal.querySelector('.modal-content');
+            
+            modal.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                content.classList.add('modal-enter');
+                content.classList.remove('scale-95', 'opacity-0');
+            });
+        }
+
+        function closeEditModal() {
+            const modal = document.getElementById('editModal');
+            const content = modal.querySelector('.modal-content');
+            
+            content.classList.remove('modal-enter');
+            content.classList.add('scale-95', 'opacity-0');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200); 
+        }
+
+        function calculateStats() {
+            const total = students.length;
+            document.getElementById('totalStudents').innerText = total;
+            
+            if (total === 0) {
+                document.getElementById('totalApproved').innerText = '0';
+                document.getElementById('totalFailed').innerText = '0';
+                document.getElementById('classAverage').innerText = '0.0';
+                return;
+            }
+
+            const approved = students.filter(s => s.average >= 7).length;
+            const sumAvg = students.reduce((acc, s) => acc + s.average, 0);
+            
+            document.getElementById('totalApproved').innerText = approved;
+            document.getElementById('totalFailed').innerText = total - approved;
+            document.getElementById('classAverage').innerText = (sumAvg / total).toFixed(1);
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('studentsTableBody');
+            const emptyState = document.getElementById('emptyState');
+            const searchInput = document.getElementById('searchInput');
+            const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+            
+            tbody.innerHTML = '';
+
+            if (!students || !Array.isArray(students)) {
+                students = [];
+            }
+
+            const filteredStudents = students.filter(s => {
+                const nome = s.nome ? s.nome.toLowerCase() : '';
+                const id = s.id ? String(s.id) : '';
+                const turma = s.turma ? s.turma.toLowerCase() : '';
+                return nome.includes(searchTerm) || id.includes(searchTerm) || turma.includes(searchTerm);
+            });
+
+            if (filteredStudents.length === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                
+                filteredStudents.forEach((student) => {
+                    const id = student.id || '???';
+                    const nome = student.nome || 'Sem Nome';
+                    const turma = student.turma || '-';
+                    const avgValue = typeof student.average === 'number' ? student.average : 0;
+                    const isPassing = avgValue >= 7;
+                    
+                    const statusBadge = isPassing 
+                        ? '<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200 uppercase tracking-wide"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Aprovado</span>' 
+                        : '<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-rose-100 text-rose-700 border border-rose-200 uppercase tracking-wide"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>Reprovado</span>';
+                    
+                    let initials = nome.substring(0,2).toUpperCase();
+                    const avatarColor = isPassing ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-100 text-slate-500';
+
+                    const tr = document.createElement('tr');
+                    tr.className = 'group hover:bg-indigo-50/30 transition-colors fade-enter border-b border-slate-50 last:border-0';
+                    tr.innerHTML = `
+                        <td class="px-8 py-5">
+                            <div class="flex items-center gap-4">
+                                <div class="h-12 w-12 rounded-2xl ${avatarColor} flex items-center justify-center text-sm font-bold shadow-sm group-hover:scale-110 transition-transform duration-300">
+                                    ${initials}
+                                </div>
+                                <div>
+                                    <div class="font-bold text-slate-900 text-base">${nome}</div>
+                                    <div class="text-xs text-slate-400 font-bold mt-0.5 flex items-center gap-1">
+                                        ID: <span class="font-mono">${id}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-5 text-center">
+                            <span class="text-sm font-bold bg-slate-100 text-slate-600 px-3 py-1 rounded-lg border border-slate-200">
+                                ${turma}
+                            </span>
+                        </td>
+                        <td class="px-6 py-5 text-center">
+                            <div class="flex flex-col items-center">
+                                <span class="text-lg font-black ${isPassing ? 'text-slate-800' : 'text-rose-500'}">${avgValue.toFixed(1)}</span>
+                                <div class="flex gap-1.5 mt-1 opacity-40 group-hover:opacity-100 transition-opacity">
+                                    <span class="text-[10px] bg-white border border-slate-200 px-1.5 py-0.5 rounded font-mono text-slate-500" title="Nota 1">${student.n1 || 0}</span>
+                                    <span class="text-[10px] bg-white border border-slate-200 px-1.5 py-0.5 rounded font-mono text-slate-500" title="Nota 2">${student.n2 || 0}</span>
+                                    <span class="text-[10px] bg-white border border-slate-200 px-1.5 py-0.5 rounded font-mono text-slate-500" title="Nota 3">${student.n3 || 0}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-5 text-center">
+                            ${statusBadge}
+                        </td>
+                        <td class="px-8 py-5 text-right">
+                            <div class="flex justify-end gap-2">
+                                <button onclick="openEditModal('${id}')" class="p-2.5 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-all hover:scale-105 shadow-sm" title="Editar">
+                                    <i data-lucide="pencil-line" class="h-5 w-5"></i>
+                                </button>
+                                <button onclick="deleteStudentApi('${id}')" class="p-2.5 text-rose-500 bg-rose-50 hover:bg-rose-100 rounded-xl transition-all hover:scale-105 shadow-sm" title="Excluir">
+                                    <i data-lucide="trash-2" class="h-5 w-5"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+            calculateStats();
+            lucide.createIcons();
+        }
+
+        function showToast(title, msg, isError = false) {
+            const toast = document.getElementById('toast');
+            const iconDiv = document.getElementById('toastIcon');
+            
+            document.getElementById('toastTitle').innerText = title;
+            document.getElementById('toastMessage').innerText = msg;
+            
+            if(isError) {
+                iconDiv.className = 'bg-rose-100 p-3 rounded-full text-rose-600';
+                iconDiv.innerHTML = '<i data-lucide="alert-triangle" class="h-6 w-6"></i>';
+            } else {
+                iconDiv.className = 'bg-emerald-100 p-3 rounded-full text-emerald-600';
+                iconDiv.innerHTML = '<i data-lucide="check" class="h-6 w-6"></i>';
+            }
+            
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            lucide.createIcons();
+            setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 4000);
+        }
+
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeEditModal();
+        });
+
+        window.onload = fetchStudents;
+    </script>
+</body>
+</html>
